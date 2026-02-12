@@ -30,54 +30,6 @@ public class UpdateCheckerUtils {
     public static final Pattern SEM_VER_PATTERN = Pattern.compile("^v?(\\d+)(?:\\.(\\d+))?(?:\\.(\\d+))?.*$");
 
     public static void checkForUpdates() {
-        CompletableFuture.runAsync(() -> {
-            // 获取GitHub最新正式版版本号（已过滤预发布版）
-            String latestOfficialVersion = getLatestOfficialPrinterVersion();
-            if (latestOfficialVersion == null) {
-                return;
-            }
-            // 解析本地版本和最新正式版为语义化版本对象
-            SemanticVersion localSemVer = SemanticVersion.parse(LOCAL_VERSION);
-            SemanticVersion latestSemVer = SemanticVersion.parse(latestOfficialVersion);
-            // 版本解析失败则跳过
-            if (localSemVer == null || latestSemVer == null) {
-                System.out.println("版本号解析失败，本地版本：" + LOCAL_VERSION + "，最新版本：" + latestOfficialVersion);
-                return;
-            }
-            // 仅当最新正式版 > 本地版本时，触发更新提示
-            if (latestSemVer.isHigherThan(localSemVer)) {
-                Minecraft.getInstance().execute(() -> {
-                    MessageUtils.addMessage(I18n.UPDATE_AVAILABLE.getName(LOCAL_VERSION, latestOfficialVersion)
-                            .withStyle(ChatFormatting.YELLOW));
-                    MessageUtils.addMessage(I18n.UPDATE_RECOMMENDATION.getName()
-                            .withStyle(ChatFormatting.RED));
-                    MessageUtils.addMessage(I18n.UPDATE_REPOSITORY.getName()
-                            .withStyle(ChatFormatting.WHITE));
-                    MessageUtils.addMessage(StringUtils.literal("https://github.com/BiliXWhite/litematica-printer")
-                            .setStyle(Style.EMPTY
-                                    //#if MC >= 12105
-                                    .withClickEvent(new ClickEvent.OpenUrl(URI.create("https://github.com/BiliXWhite/litematica-printer")))
-                                    //#else
-                                    //$$ .withClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, "https://github.com/BiliXWhite/litematica-printer"))
-                                    //#endif
-                                    .withUnderlined(true)
-                                    .withColor(ChatFormatting.BLUE)));
-                    MessageUtils.addMessage(I18n.UPDATE_DOWNLOAD.getName()
-                            .setStyle(Style.EMPTY
-                                    //#if MC >= 12105
-                                    .withClickEvent(new ClickEvent.OpenUrl(URI.create("https://xeno.lanzoue.com/b00l1v20vi")))
-                                    //#else
-                                    //$$ .withClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, "https://xeno.lanzoue.com/b00l1v20vi"))
-                                    //#endif
-                                    .withBold(true)
-                                    .withColor(ChatFormatting.GREEN)));
-                    MessageUtils.addMessage(I18n.UPDATE_PASSWORD.getName("cgxw")
-                            .withStyle(ChatFormatting.WHITE));
-                    MessageUtils.addMessage(
-                            StringUtils.literal("------------------------").withStyle(ChatFormatting.GRAY));
-                });
-            }
-        });
     }
 
     /**
